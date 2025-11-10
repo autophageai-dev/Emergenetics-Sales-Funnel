@@ -1,13 +1,13 @@
 /*
- * Emergenetics Landing Page JS — v16
- * - KPI band flat blue (CSS), hero organic swooshes drift (CSS)
- * - Robust KPI animation (hard-coded)
- * - Mobile-safe, conservative behaviors
+ * Emergenetics Landing Page JS — v17.2
+ * - Calendar popup honors editor setting if present; falls back to default URL
+ * - KPI ring animation (donut + number roll-up) with robust intersection handling
+ * - Reveal-on-scroll and collage parallax
  */
 
 document.addEventListener('DOMContentLoaded', () => {
   try {
-    // Scope
+    // Scope class
     document.body.classList.add('landing-eg');
 
     // Remove chat widgets (defensive)
@@ -71,9 +71,11 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
 
-    // Calendly popup
+    // Calendly popup (reads URL from section setting; fallback default)
+    const hero = document.querySelector('.eg-hero');
+    const configuredCalendly = hero?.getAttribute('data-calendly') || '';
+    const calendlyUrl = configuredCalendly && configuredCalendly.trim() !== '' ? configuredCalendly : 'https://calendly.com/jessica-smith';
     const openBtn = document.getElementById('eg-open-calendly');
-    const calendlyPopupUrl = 'https://calendly.com/jessica-smith';
     const ensureCalendly = () => new Promise(resolve => {
       if (window.Calendly) return resolve();
       const s = document.createElement('script');
@@ -84,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openBtn) {
       openBtn.addEventListener('click', async () => {
         await ensureCalendly();
-        Calendly.initPopupWidget({ url: calendlyPopupUrl });
+        Calendly.initPopupWidget({ url: calendlyUrl });
         return false;
       });
     }
@@ -148,71 +150,69 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     runCanvas();
 
-    // ===== KPI Animation (robust, large) =====
-    const kpis = document.querySelectorAll('.eg-kpi');
-    const R = 90;                 // matches r in SVG
-    const CIRC = 2 * Math.PI * R; // ~565.5
-
-    function animateKPI(el, delayMs = 0) {
-      const pct = Math.max(0, Math.min(100, parseFloat(el.getAttribute('data-percent')) || 0));
-      const fill = el.querySelector('[data-fill]');
-      const num = el.querySelector('[data-count]');
-      if (!fill || !num) return;
-
-      // Initialize ring
-      fill.style.setProperty('--eg-circ', String(CIRC));
-      fill.style.strokeDasharray = String(CIRC);
-      fill.style.strokeDashoffset = String(CIRC);
-      fill.style.transition = 'none';
-      void fill.getBoundingClientRect();
-
-      // Animate after small stagger
-      setTimeout(() => {
-        requestAnimationFrame(() => {
-          const targetOffset = CIRC - (CIRC * pct / 100);
-          fill.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.65, 0, 0.35, 1)';
-          fill.style.strokeDashoffset = String(targetOffset);
-        });
-
-        const duration = 1600;
-        const start = performance.now();
-        const endVal = Math.round(pct);
-        function tick(now) {
-          const t = Math.min(1, (now - start) / duration);
-          const eased = 0.5 * (1 - Math.cos(Math.PI * t)); // easeInOutSine
-          num.textContent = String(Math.round(endVal * eased));
-          if (t < 1) requestAnimationFrame(tick);
-        }
-        requestAnimationFrame(tick);
-      }, delayMs);
-    }
-
-    // Trigger via observer + fallback; stagger each card by 120ms
+    // ===== KPI Animation =====
     const grid = document.querySelector('.eg-kpi-grid');
     if (grid) {
-      const cards = [...grid.querySelectorAll('.eg-kpi')];
+      const cards = Array.from(grid.querySelectorAll('.eg-kpi'));
+      const R = 90;
+      const CIRC = 2 * Math.PI * R;
+
+      function animateCard(el, delayMs = 0) {
+        const pct = Math.max(0, Math.min(100, parseFloat(el.getAttribute('data-percent')) || 0));
+        const fill = el.querySelector('[data-fill]');
+        const num = el.querySelector('[data-count]');
+        if (!fill || !num) return;
+
+        // prep
+        fill.style.setProperty('--eg-circ', String(CIRC));
+        fill.style.strokeDasharray = String(CIRC);
+        fill.style.strokeDashoffset = String(CIRC);
+        fill.style.transition = 'none';
+        void fill.getBoundingClientRect();
+
+        setTimeout(() => {
+          requestAnimationFrame(() => {
+            const targetOffset = CIRC - (CIRC * pct / 100);
+            fill.style.transition = 'stroke-dashoffset 1500ms cubic-bezier(0.65, 0, 0.35, 1)';
+            fill.style.strokeDashoffset = String(targetOffset);
+          });
+
+          const duration = 1600;
+          const start = performance.now();
+          const endVal = Math.round(pct);
+          function tick(now) {
+            const t = Math.min(1, (now - start) / duration);
+            const eased = 0.5 * (1 - Math.cos(Math.PI * t)); // easeInOutSine
+            num.textContent = String(Math.round(endVal * eased));
+            if (t < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+        }, delayMs);
+      }
+
+      // Observe first visible card; fan out
       const sentinel = cards[0];
       const kpiObserver = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
           if (entry.isIntersecting) {
-            cards.forEach((card, i) => animateKPI(card, i * 120));
-            kpiObserver.unobserve(entry.target);
+            cards.forEach((card, i) => animateCard(card, i * 120));
+            kpiObserver.disconnect();
           }
         });
       }, { threshold: 0.18 });
 
       if (sentinel) {
         kpiObserver.observe(sentinel);
-        // Fallback if already in view on load
-        const top = sentinel.getBoundingClientRect().top + window.scrollY;
-        if (window.scrollY + window.innerHeight >= top) {
-          cards.forEach((card, i) => animateKPI(card, i * 120));
+        // If already in view on load
+        const rect = sentinel.getBoundingClientRect();
+        if (rect.top < window.innerHeight && rect.bottom > 0) {
+          cards.forEach((card, i) => animateCard(card, i * 120));
           kpiObserver.disconnect();
         }
       }
     }
 
   } catch (err) {
-    console.error('EG landing script error (v16):', err);
+    console.error('EG landing script error (v17.2):', err);
   }
 });

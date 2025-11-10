@@ -1,26 +1,25 @@
 {% comment %}
-Emergenetics Workshops — PRODUCTION v16
-- KPI section: flat blue (matches “Science of Thinking”)
-- Hero polish: organic radial swooshes (subtle animated drift)
-- JSON-LD schema (Organization, Product, Person) — conservative
-- Mobile pass & cohesion
-- KPIs are HARD-CODED (no blocks)
+Emergenetics Workshops — PRODUCTION v17.2
+- Image fallbacks restored (real images) but still editable via schema
+- Flat blue KPI band, hero swooshes/canvas kept
+- Conservative editor schema (no risky defaults); strict JSON
+- Mobile-safe; KPI rings animate via emergenetics.js
 {% endcomment %}
 
 <link rel="stylesheet" href="{{ 'emergenetics.css' | asset_url }}" media="all">
 <script defer src="{{ 'emergenetics.js' | asset_url }}"></script>
 
 <style>
-/* Kill parent theme chrome + stray chat widgets */
+/* Hide theme chrome + chat widgets, just in case */
 .site-header, .site-footer, .autophage-header, .autophage-footer { display:none !important; }
 #chat-widget, .chat-widget, .tawk-button, .hubspot-chat, .intercom-launcher, [id*="chat"], [class*="chat-bubble"] { display:none !important; visibility:hidden !important; }
 
-/* Safety guards for KPI band color/contrast */
+/* Hard guard: KPI section must be flat blue & high-contrast */
 #metrics.eg-kpis.eg-kpis-blue { background:#3444f5 !important; color:#fff !important; }
-#metrics.eg-kpis.eg-kpis-blue h1, 
-#metrics.eg-kpis.eg-kpis-blue h2, 
-#metrics.eg-kpis.eg-kpis-blue h3, 
-#metrics.eg-kpis.eg-kpis-blue p, 
+#metrics.eg-kpis.eg-kpis-blue h1,
+#metrics.eg-kpis.eg-kpis-blue h2,
+#metrics.eg-kpis.eg-kpis-blue h3,
+#metrics.eg-kpis.eg-kpis-blue p,
 #metrics.eg-kpis.eg-kpis-blue li { color:#fff !important; }
 </style>
 
@@ -64,19 +63,21 @@ Emergenetics Workshops — PRODUCTION v16
   </header>
 
   <!-- HERO -->
-  <section class="eg-hero eg-hero-tight eg-section eg-light" aria-label="Emergenetics Workshop Hero">
+  <section class="eg-hero eg-hero-tight eg-section eg-light"
+           aria-label="Emergenetics Workshop Hero"
+           data-calendly="{{ section.settings.calendly_url | default: '' }}">
     <canvas id="eg-canvas" class="eg-canvas" aria-hidden="true"></canvas>
 
-    <!-- Organic radial swooshes (animated drift) -->
+    <!-- Organic radials -->
     <div class="eg-swoosh eg-swoosh-a" aria-hidden="true"></div>
     <div class="eg-swoosh eg-swoosh-b" aria-hidden="true"></div>
     <div class="eg-swoosh eg-swoosh-c" aria-hidden="true"></div>
 
     <div class="eg-hero-inner eg-container">
       <div class="eg-hero-left" data-reveal>
-        <h1>Transform Your Team’s Communication & Performance</h1>
+        <h1>{{ section.settings.hero_heading | default: "Transform Your Team’s Communication & Performance" }}</h1>
         <p class="eg-hero-sub">
-          High-impact <strong>Emergenetics® Workshops</strong> that build trust, boost engagement, and align teams around a shared language—facilitated by <strong>Jes Cruz, CPTD</strong>.
+          {{ section.settings.hero_sub | default: "High-impact <strong>Emergenetics® Workshops</strong> that build trust, boost engagement, and align teams around a shared language—facilitated by <strong>Jes Cruz, CPTD</strong>." }}
         </p>
 
         {% form 'contact', id: 'eg-hero-form' %}
@@ -92,21 +93,34 @@ Emergenetics Workshops — PRODUCTION v16
           </div>
 
           <div class="eg-cta-row">
-            <button type="button" id="eg-open-calendly" class="eg-btn eg-btn-primary" aria-label="Book Free Discovery Call">Book Free Discovery Call</button>
+            <button type="button" id="eg-open-calendly" class="eg-btn eg-btn-primary" aria-label="Book Free Discovery Call">
+              {{ section.settings.hero_cta_text | default: "Book Free Discovery Call" }}
+            </button>
 
             <span class="eg-price-badge" aria-label="Promo price">
-              <span class="eg-price-main">$1,590</span>
-              <span class="eg-price-save">SAVE 36%</span>
+              <span class="eg-price-main">{{ section.settings.price_main | default: "$1,590" }}</span>
+              <span class="eg-price-save">{{ section.settings.price_save | default: "SAVE 36%" }}</span>
             </span>
           </div>
-          <p class="eg-hero-note">Supported by a workplace happiness non-profit — may qualify as deductible training.</p>
+          <p class="eg-hero-note">
+            {{ section.settings.hero_note | default: "Supported by a workplace happiness non-profit — may qualify as deductible training." }}
+          </p>
         {% endform %}
       </div>
 
+      <!-- Collage with fallbacks -->
       <div class="eg-hero-collage" data-reveal data-parallax>
-        <img class="eg-collage a" src="https://cdn.shopify.com/s/files/1/0705/7326/0982/files/IMG_4515.jpg?v=1762412739" alt="Jes Cruz speaking">
-        <img class="eg-collage b" src="https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80" alt="Team planning together">
-        <img class="eg-collage c" src="https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80" alt="Happy diverse team">
+        <img class="eg-collage a"
+             src="{{ section.settings.collage_a | image_url: width: 1200 | default: 'https://cdn.shopify.com/s/files/1/0705/7326/0982/files/IMG_4515.jpg?v=1762412739' }}"
+             alt="{{ section.settings.collage_a_alt | default: 'Jes Cruz speaking' }}">
+
+        <img class="eg-collage b"
+             src="{{ section.settings.collage_b | image_url: width: 1200 | default: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80' }}"
+             alt="{{ section.settings.collage_b_alt | default: 'Team planning together' }}">
+
+        <img class="eg-collage c"
+             src="{{ section.settings.collage_c | image_url: width: 1200 | default: 'https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80' }}"
+             alt="{{ section.settings.collage_c_alt | default: 'Happy diverse team' }}">
       </div>
     </div>
 
@@ -117,90 +131,118 @@ Emergenetics Workshops — PRODUCTION v16
     </svg>
   </section>
 
-  <!-- KPI / IMPACT — HARD CODED -->
+  <!-- KPI / IMPACT -->
   <section id="metrics" class="eg-kpis eg-kpis-blue" aria-labelledby="eg-kpi-title" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-kpi-title">REAL RESULTS FROM 359 PARTICIPANTS</h2>
+      <h2 id="eg-kpi-title">
+        {{ section.settings.kpi_heading | default: "REAL RESULTS FROM 359 PARTICIPANTS" }}
+      </h2>
       <p class="eg-muted eg-kpi-lead">
-        Post-workshop survey (2012–2015). The Emergenetics® Profile is norm-based (not diagnostic) and renormed biannually.
+        {{ section.settings.kpi_subtext | default: "Post-workshop survey (2012–2015). The Emergenetics® Profile is norm-based (not diagnostic) and renormed biannually." }}
       </p>
 
-      <div class="eg-kpi-grid eg-kpi-grid-large">
-        <!-- 1 -->
-        <article class="eg-kpi eg-kpi-large" data-percent="79" data-label="+79%" data-context="Better Self-Understanding">
-          <div class="eg-donut" aria-hidden="true">
-            <svg viewBox="0 0 200 200" class="eg-donut-svg" role="img" focusable="false" aria-label="Better Self-Understanding">
-              <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
-              <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
-            </svg>
-            <div class="eg-donut-center">
-              <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+      {% if section.blocks.size > 0 %}
+        <div class="eg-kpi-grid eg-kpi-grid-large">
+          {% for block in section.blocks %}
+            {% if block.type == 'kpi' %}
+              <article class="eg-kpi eg-kpi-large"
+                       data-percent="{{ block.settings.kpi_percent | escape }}"
+                       data-label="{{ block.settings.kpi_label | escape }}"
+                       data-context="{{ block.settings.kpi_context | escape }}"
+                       {{ block.shopify_attributes }}>
+                <div class="eg-donut" aria-hidden="true">
+                  <svg viewBox="0 0 200 200" class="eg-donut-svg" role="img" focusable="false"
+                       aria-label="{{ block.settings.kpi_context | escape }}">
+                    <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                    <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+                  </svg>
+                  <div class="eg-donut-center">
+                    <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+                  </div>
+                </div>
+                <h3 class="eg-kpi-head">
+                  <span class="eg-kpi-plus">+</span>{{ block.settings.kpi_percent | escape }}%
+                  <span class="eg-kpi-head-context">{{ block.settings.kpi_context | default: "Result" }}</span>
+                </h3>
+                <p class="eg-kpi-copy">{{ block.settings.kpi_copy | default: "Impact description." }}</p>
+              </article>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <!-- Fallback KPIs (always show even with zero blocks) -->
+        <div class="eg-kpi-grid eg-kpi-grid-large">
+          <article class="eg-kpi eg-kpi-large" data-percent="79" data-label="+79%" data-context="Better Self-Understanding">
+            <div class="eg-donut" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Better Self-Understanding">
+                <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+              </svg>
+              <div class="eg-donut-center">
+                <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+              </div>
             </div>
-          </div>
-          <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>79% <span class="eg-kpi-head-context">Better Self-Understanding</span></h3>
-          <p class="eg-kpi-copy">Participants reported a measurable increase in awareness of their thinking & behavior styles.</p>
-        </article>
+            <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>79% <span class="eg-kpi-head-context">Better Self-Understanding</span></h3>
+            <p class="eg-kpi-copy">Participants reported a measurable increase in awareness of their thinking & behavior styles.</p>
+          </article>
 
-        <!-- 2 -->
-        <article class="eg-kpi eg-kpi-large" data-percent="69" data-label="+69%" data-context="Stronger Communication">
-          <div class="eg-donut" aria-hidden="true">
-            <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Stronger Communication">
-              <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
-              <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
-            </svg>
-            <div class="eg-donut-center">
-              <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+          <article class="eg-kpi eg-kpi-large" data-percent="69" data-label="+69%" data-context="Stronger Communication">
+            <div class="eg-donut" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Stronger Communication">
+                <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+              </svg>
+              <div class="eg-donut-center">
+                <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+              </div>
             </div>
-          </div>
-          <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>69% <span class="eg-kpi-head-context">Stronger Communication</span></h3>
-          <p class="eg-kpi-copy">Teams gained a common language to bridge styles and resolve friction faster.</p>
-        </article>
+            <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>69% <span class="eg-kpi-head-context">Stronger Communication</span></h3>
+            <p class="eg-kpi-copy">Teams gained a common language to bridge styles and resolve friction faster.</p>
+          </article>
 
-        <!-- 3 -->
-        <article class="eg-kpi eg-kpi-large" data-percent="64" data-label="+64%" data-context="Faster Collaboration">
-          <div class="eg-donut" aria-hidden="true">
-            <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Faster Collaboration">
-              <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
-              <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
-            </svg>
-            <div class="eg-donut-center">
-              <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+          <article class="eg-kpi eg-kpi-large" data-percent="64" data-label="+64%" data-context="Faster Collaboration">
+            <div class="eg-donut" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Faster Collaboration">
+                <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+              </svg>
+              <div class="eg-donut-center">
+                <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+              </div>
             </div>
-          </div>
-          <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>64% <span class="eg-kpi-head-context">Faster Collaboration</span></h3>
-          <p class="eg-kpi-copy">Clear playbooks for meetings and handoffs helped teams execute faster.</p>
-        </article>
+            <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>64% <span class="eg-kpi-head-context">Faster Collaboration</span></h3>
+            <p class="eg-kpi-copy">Clear playbooks for meetings and handoffs helped teams execute faster.</p>
+          </article>
 
-        <!-- 4 -->
-        <article class="eg-kpi eg-kpi-large" data-percent="36" data-label="+36%" data-context="Org-Wide Adoption">
-          <div class="eg-donut" aria-hidden="true">
-            <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Org-Wide Adoption">
-              <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
-              <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
-            </svg>
-            <div class="eg-donut-center">
-              <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+          <article class="eg-kpi eg-kpi-large" data-percent="36" data-label="+36%" data-context="Org-Wide Adoption">
+            <div class="eg-donut" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Org-Wide Adoption">
+                <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+              </svg>
+              <div class="eg-donut-center">
+                <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+              </div>
             </div>
-          </div>
-          <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>36% <span class="eg-kpi-head-context">Org-Wide Adoption</span></h3>
-          <p class="eg-kpi-copy">The shared language spread across functions and new-hire onboarding.</p>
-        </article>
+            <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>36% <span class="eg-kpi-head-context">Org-Wide Adoption</span></h3>
+            <p class="eg-kpi-copy">The shared language spread across functions and new-hire onboarding.</p>
+          </article>
 
-        <!-- 5 -->
-        <article class="eg-kpi eg-kpi-large" data-percent="60" data-label="+60%" data-context="Workplace-Ready Tools">
-          <div class="eg-donut" aria-hidden="true">
-            <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Workplace-Ready Tools">
-              <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
-              <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
-            </svg>
-            <div class="eg-donut-center">
-              <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+          <article class="eg-kpi eg-kpi-large" data-percent="60" data-label="+60%" data-context="Workplace-Ready Tools">
+            <div class="eg-donut" aria-hidden="true">
+              <svg viewBox="0 0 200 200" class="eg-donut-svg" aria-label="Workplace-Ready Tools">
+                <circle class="eg-donut-track" cx="100" cy="100" r="90"></circle>
+                <circle class="eg-donut-fill" cx="100" cy="100" r="90" data-fill></circle>
+              </svg>
+              <div class="eg-donut-center">
+                <span class="eg-kpi-num" data-count>0</span><span class="eg-kpi-suffix">%</span>
+              </div>
             </div>
-          </div>
-          <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>60% <span class="eg-kpi-head-context">Workplace-Ready Tools</span></h3>
-          <p class="eg-kpi-copy">Most-cited strengths: applicability, simplicity, and visual clarity — together.</p>
-        </article>
-      </div>
+            <h3 class="eg-kpi-head"><span class="eg-kpi-plus">+</span>60% <span class="eg-kpi-head-context">Workplace-Ready Tools</span></h3>
+            <p class="eg-kpi-copy">Most-cited strengths: applicability, simplicity, and visual clarity — together.</p>
+          </article>
+        </div>
+      {% endif %}
 
       <div class="eg-kpi-footnote">
         <p><strong>Practicality:</strong> Emergenetics® helps people compare preference intensity — there’s no “best type,” only patterns to execute better together.</p>
@@ -211,17 +253,17 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- PURPOSE -->
   <section id="purpose" class="eg-purpose eg-section eg-light" data-reveal>
     <div class="eg-container">
-      <h2 class="eg-purpose-title">Purpose. People. Possibility.</h2>
-      <p class="eg-purpose-copy">Jes Cruz is a purpose-driven learning professional who believes that true transformation begins with alignment. Through Emergenetics® and human-centered learning design, she helps teams uncover strengths, communicate with intention, and collaborate with empathy—bridging who you are with how you work.</p>
+      <h2 class="eg-purpose-title">{{ section.settings.purpose_heading | default: "Purpose. People. Possibility." }}</h2>
+      <p class="eg-purpose-copy">{{ section.settings.purpose_copy | default: "Jes Cruz is a purpose-driven learning professional who believes that true transformation begins with alignment. Through Emergenetics® and human-centered learning design, she helps teams uncover strengths, communicate with intention, and collaborate with empathy—bridging who you are with how you work." }}</p>
       <div class="eg-purpose-underline" aria-hidden="true"></div>
     </div>
   </section>
 
-  <!-- OVERVIEW (Blue band) -->
+  <!-- OVERVIEW (Blue) -->
   <section id="overview" class="eg-blue" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-overview-title">The Science of Thinking & Behavior</h2>
-      <p>Emergenetics® blends neuroscience and psychometrics to illuminate how people prefer to think and behave. Your team gains a shared language that reduces friction, strengthens collaboration, and accelerates outcomes.</p>
+      <h2 id="eg-overview-title">{{ section.settings.science_heading | default: "The Science of Thinking & Behavior" }}</h2>
+      <p>{{ section.settings.science_copy | default: "Emergenetics® blends neuroscience and psychometrics to illuminate how people prefer to think and behave. Your team gains a shared language that reduces friction, strengthens collaboration, and accelerates outcomes." }}</p>
     </div>
     <svg class="eg-blue-wave" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0,32L80,48C160,64,320,96,480,101.3C640,107,800,85,960,74.7C1120,64,1280,64,1360,64L1440,64L1440,120L0,120Z"/>
@@ -231,7 +273,7 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- HOW IT WORKS -->
   <section id="how" class="eg-section eg-light" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-how-title" class="eg-h2-chip">How It Works</h2>
+      <h2 id="eg-how-title" class="eg-h2-chip">{{ section.settings.how_heading | default: "How It Works" }}</h2>
       <div class="eg-steps" role="list">
         <article class="eg-step-card eg-step-blue" role="listitem"><div class="eg-step-icon" aria-hidden="true">🧠</div><h3>1) Profile</h3><p>Participants complete the Emergenetics® Profile to surface thinking & behavior preferences.</p></article>
         <article class="eg-step-card eg-step-blue" role="listitem"><div class="eg-step-icon" aria-hidden="true">🤝</div><h3>2) Workshop</h3><p>Interactive workshop where teams decode differences and practice alignment tools.</p></article>
@@ -244,8 +286,8 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- WORKSHOPS / PRICING -->
   <section id="workshops" class="eg-section eg-light" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-w-title">Workshop Options</h2>
-      <p class="eg-muted">Choose a format that fits your team’s goals and availability. All packages include Emergenetics® Profiles, digital workbooks, and team composites.</p>
+      <h2 id="eg-w-title">{{ section.settings.workshops_heading | default: "Workshop Options" }}</h2>
+      <p class="eg-muted">{{ section.settings.workshops_sub | default: "Choose a format that fits your team’s goals and availability. All packages include Emergenetics® Profiles, digital workbooks, and team composites." }}</p>
 
       <div class="eg-workshop-group">
         <h3 class="eg-heading-blue">Virtual Workshops (3 hours • Zoom)</h3>
@@ -271,7 +313,7 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- BENEFITS -->
   <section id="benefits" class="eg-section eg-light patterned" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-benefits-title">Benefits You’ll See</h2>
+      <h2 id="eg-benefits-title">{{ section.settings.benefits_heading | default: "Benefits You’ll See" }}</h2>
       <div class="eg-benefits">
         <div class="eg-benefit"><span class="eg-accent-dot"></span><h4>Clear, Confident Communication</h4><p>Adopt a common language that reduces misunderstandings and conflict.</p></div>
         <div class="eg-benefit"><span class="eg-accent-dot"></span><h4>Faster Collaboration</h4><p>Leverage different thinking styles to solve problems faster and better.</p></div>
@@ -288,10 +330,14 @@ Emergenetics Workshops — PRODUCTION v16
     <div class="eg-container eg-jes">
       <h2 id="eg-jes-title" class="sr-only">About Jes Cruz</h2>
       <div class="eg-jes-card">
-        <img class="eg-jes-img" src="https://cdn.shopify.com/s/files/1/0705/7326/0982/files/IMG_4516.jpg?v=1762408263" alt="Jes Cruz">
+        <img class="eg-jes-img"
+             src="{{ section.settings.jes_photo | image_url: width: 600 | default: 'https://cdn.shopify.com/s/files/1/0705/7326/0982/files/IMG_4516.jpg?v=1762408263' }}"
+             alt="{{ section.settings.jes_photo_alt | default: 'Jes Cruz' }}">
         <div class="eg-jes-info">
-          <img class="eg-cert" src="https://cdn.shopify.com/s/files/1/0705/7326/0982/files/EG_Certified_Associate_Logo_Full_Colour.png?v=1762408295" alt="Emergenetics Certified Associate">
-          <h3>Jes Cruz, CPTD</h3>
+          <img class="eg-cert"
+               src="{{ section.settings.jes_cert | image_url: width: 600 | default: 'https://cdn.shopify.com/s/files/1/0705/7326/0982/files/EG_Certified_Associate_Logo_Full_Colour.png?v=1762408295' }}"
+               alt="{{ section.settings.jes_cert_alt | default: 'Emergenetics Certified Associate' }}">
+          <h3>{{ section.settings.jes_name | default: "Jes Cruz, CPTD" }}</h3>
           <div class="eg-underline"></div>
           <ul class="eg-badges" aria-label="Credentials">
             <li>Learning Experience Architect</li>
@@ -308,12 +354,16 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- CALENDLY -->
   <section id="book" class="eg-section eg-light" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-book-title">Book Your Discovery Call</h2>
-      <p class="eg-muted">Pick a time that works for you. We’ll discuss your goals, team size, and logistics.</p>
+      <h2 id="eg-book-title">{{ section.settings.book_heading | default: "Book Your Discovery Call" }}</h2>
+      <p class="eg-muted">{{ section.settings.book_copy | default: "Pick a time that works for you. We’ll discuss your goals, team size, and logistics." }}</p>
       <div class="eg-calendly-embed">
+        {% comment %}
+          If no calendly_url is set, the JS popup uses default; the iframe below uses either the set URL or the same default.
+        {% endcomment %}
+        {% assign cal_url = section.settings.calendly_url | default: 'https://calendly.com/jessica-smith' %}
         <iframe
           title="Calendly inline scheduling"
-          src="https://calendly.com/jessica-smith?hide_gdpr_banner=1&background_color=f9fafb&text_color=0f172a&primary_color=3444f5"
+          src="{{ cal_url }}?hide_gdpr_banner=1&background_color=f9fafb&text_color=0f172a&primary_color=3444f5"
           width="100%" height="680" frameborder="0" scrolling="no">
         </iframe>
       </div>
@@ -323,7 +373,7 @@ Emergenetics Workshops — PRODUCTION v16
   <!-- TESTIMONIALS -->
   <section id="testimonials" class="eg-section eg-light" data-reveal>
     <div class="eg-container">
-      <h2 id="eg-test-title" class="eg-h2-chip">What Teams Are Saying</h2>
+      <h2 id="eg-test-title" class="eg-h2-chip">{{ section.settings.test_heading | default: "What Teams Are Saying" }}</h2>
       <div class="eg-testimonials">
         <blockquote><p>“We left with a common language and immediate wins—meetings are shorter and people feel heard.”</p><footer>— Director of Ops, SaaS</footer></blockquote>
         <blockquote><p>“Jes made complex neuroscience simple and engaging. Best workshop in years.”</p><footer>— HR Manager, Retail Group</footer></blockquote>
@@ -336,16 +386,16 @@ Emergenetics Workshops — PRODUCTION v16
   <section class="eg-cta-band eg-light" data-reveal>
     <div class="eg-container eg-cta-inner">
       <div>
-        <h3>Ready to energize your team?</h3>
-        <p>Claim the launch offer and get your team aligned within weeks.</p>
+        <h3>{{ section.settings.cta_heading | default: "Ready to energize your team?" }}</h3>
+        <p>{{ section.settings.cta_copy | default: "Claim the launch offer and get your team aligned within weeks." }}</p>
       </div>
-      <a href="#book" class="eg-btn eg-btn-primary">Schedule Now</a>
+      <a href="#book" class="eg-btn eg-btn-primary">{{ section.settings.cta_button | default: "Schedule Now" }}</a>
     </div>
   </section>
 
   <!-- Sticky mobile CTA -->
   <div class="eg-sticky-cta">
-    <a href="#book" class="eg-btn eg-btn-primary eg-sticky-cta-btn">Book Free Call</a>
+    <a href="#book" class="eg-btn eg-btn-primary eg-sticky-cta-btn">{{ section.settings.sticky_cta | default: "Book Free Call" }}</a>
   </div>
 
   <footer class="eg-tail" role="contentinfo">
@@ -356,46 +406,73 @@ Emergenetics Workshops — PRODUCTION v16
 
 </section>
 
-{%- comment -%} ---------------- JSON-LD SCHEMA (conservative) ---------------- {%- endcomment -%}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "name": "Emergenetics Workshops by Jes Cruz",
-      "url": "{{ shop.url }}",
-      "logo": "https://cdn.shopify.com/s/files/1/0705/7326/0982/files/logo-new.png?v=1762408302"
-    },
-    {
-      "@type": "Person",
-      "name": "Jes Cruz, CPTD",
-      "jobTitle": "Emergenetics® Certified Associate",
-      "url": "{{ shop.url }}#jes",
-      "image": "https://cdn.shopify.com/s/files/1/0705/7326/0982/files/IMG_4516.jpg?v=1762408263",
-      "affiliation": { "@type": "Organization", "name": "Emergenetics International" }
-    },
-    {
-      "@type": "Product",
-      "name": "Emergenetics® Team Workshop",
-      "brand": { "@type": "Brand", "name": "Emergenetics" },
-      "url": "{{ shop.url }}#workshops",
-      "description": "Interactive Emergenetics® workshops for teams focusing on communication, collaboration, and trust.",
-      "offers": [
-        { "@type": "Offer", "priceCurrency": "USD", "price": "1590", "category": "Virtual", "url": "{{ shop.url }}#workshops" },
-        { "@type": "Offer", "priceCurrency": "USD", "price": "3180", "category": "Virtual", "url": "{{ shop.url }}#workshops" },
-        { "@type": "Offer", "priceCurrency": "USD", "price": "4950", "category": "In-Person", "url": "{{ shop.url }}#workshops" }
-      ]
-    }
-  ]
-}
-</script>
-
 {% schema %}
 {
-  "name": "Emergenetics Workshops — PRODUCTION v16",
-  "settings": [],
-  "blocks": [],
-  "presets": [{ "name": "Emergenetics Workshops (v16)" }]
+  "name": "Emergen v17.2",
+  "settings": [
+    { "type": "text", "id": "hero_heading", "label": "Hero Heading", "default": "Transform Your Team’s Communication & Performance" },
+    { "type": "richtext", "id": "hero_sub", "label": "Hero Subtext", "default": "<p>High-impact <strong>Emergenetics® Workshops</strong> that build trust, boost engagement, and align teams around a shared language—facilitated by <strong>Jes Cruz, CPTD</strong>.</p>" },
+    { "type": "text", "id": "hero_cta_text", "label": "Hero CTA Text", "default": "Book Free Discovery Call" },
+    { "type": "text", "id": "price_main", "label": "Price Badge — Main", "default": "$1,590" },
+    { "type": "text", "id": "price_save", "label": "Price Badge — Save Label", "default": "SAVE 36%" },
+    { "type": "text", "id": "hero_note", "label": "Hero Note", "default": "Supported by a workplace happiness non-profit — may qualify as deductible training." },
+
+    { "type": "image_picker", "id": "collage_a", "label": "Hero Collage — Image A" },
+    { "type": "text", "id": "collage_a_alt", "label": "Image A Alt", "default": "Jes Cruz speaking" },
+    { "type": "image_picker", "id": "collage_b", "label": "Hero Collage — Image B" },
+    { "type": "text", "id": "collage_b_alt", "label": "Image B Alt", "default": "Team planning together" },
+    { "type": "image_picker", "id": "collage_c", "label": "Hero Collage — Image C" },
+    { "type": "text", "id": "collage_c_alt", "label": "Image C Alt", "default": "Happy diverse team" },
+
+    { "type": "url", "id": "calendly_url", "label": "Calendly URL" },
+
+    { "type": "text", "id": "kpi_heading", "label": "KPI Heading", "default": "REAL RESULTS FROM 359 PARTICIPANTS" },
+    { "type": "textarea", "id": "kpi_subtext", "label": "KPI Subtext", "default": "Post-workshop survey (2012–2015). The Emergenetics® Profile is norm-based (not diagnostic) and renormed biannually." },
+
+    { "type": "text", "id": "purpose_heading", "label": "Purpose Heading", "default": "Purpose. People. Possibility." },
+    { "type": "textarea", "id": "purpose_copy", "label": "Purpose Copy", "default": "Jes Cruz is a purpose-driven learning professional who believes that true transformation begins with alignment. Through Emergenetics® and human-centered learning design, she helps teams uncover strengths, communicate with intention, and collaborate with empathy—bridging who you are with how you work." },
+
+    { "type": "text", "id": "science_heading", "label": "Science Heading", "default": "The Science of Thinking & Behavior" },
+    { "type": "textarea", "id": "science_copy", "label": "Science Copy", "default": "Emergenetics® blends neuroscience and psychometrics to illuminate how people prefer to think and behave. Your team gains a shared language that reduces friction, strengthens collaboration, and accelerates outcomes." },
+
+    { "type": "text", "id": "how_heading", "label": "How It Works — Heading", "default": "How It Works" },
+
+    { "type": "text", "id": "workshops_heading", "label": "Workshops — Heading", "default": "Workshop Options" },
+    { "type": "textarea", "id": "workshops_sub", "label": "Workshops — Subtext", "default": "Choose a format that fits your team’s goals and availability. All packages include Emergenetics® Profiles, digital workbooks, and team composites." },
+
+    { "type": "text", "id": "benefits_heading", "label": "Benefits — Heading", "default": "Benefits You’ll See" },
+
+    { "type": "image_picker", "id": "jes_photo", "label": "Jes Photo" },
+    { "type": "text", "id": "jes_photo_alt", "label": "Jes Photo Alt", "default": "Jes Cruz" },
+    { "type": "image_picker", "id": "jes_cert", "label": "Certification Logo" },
+    { "type": "text", "id": "jes_cert_alt", "label": "Certification Alt", "default": "Emergenetics Certified Associate" },
+    { "type": "text", "id": "jes_name", "label": "Jes Name", "default": "Jes Cruz, CPTD" },
+
+    { "type": "text", "id": "book_heading", "label": "Book — Heading", "default": "Book Your Discovery Call" },
+    { "type": "textarea", "id": "book_copy", "label": "Book — Copy", "default": "Pick a time that works for you. We’ll discuss your goals, team size, and logistics." },
+
+    { "type": "text", "id": "test_heading", "label": "Testimonials — Heading", "default": "What Teams Are Saying" },
+
+    { "type": "text", "id": "cta_heading", "label": "CTA — Heading", "default": "Ready to energize your team?" },
+    { "type": "text", "id": "cta_copy", "label": "CTA — Copy", "default": "Claim the launch offer and get your team aligned within weeks." },
+    { "type": "text", "id": "cta_button", "label": "CTA — Button Label", "default": "Schedule Now" },
+    { "type": "text", "id": "sticky_cta", "label": "Sticky Mobile CTA Label", "default": "Book Free Call" }
+  ],
+  "blocks": [
+    {
+      "type": "kpi",
+      "name": "KPI Item",
+      "settings": [
+        { "type": "text", "id": "kpi_percent", "label": "Percent (number only)", "default": "79" },
+        { "type": "text", "id": "kpi_label", "label": "Label (e.g., +79%)", "default": "+79%" },
+        { "type": "text", "id": "kpi_context", "label": "Context (e.g., Better Self-Understanding)", "default": "Better Self-Understanding" },
+        { "type": "textarea", "id": "kpi_copy", "label": "Blurb", "default": "Participants reported a measurable increase in awareness of their thinking & behavior styles." }
+      ]
+    }
+  ],
+  "max_blocks": 8,
+  "presets": [
+    { "name": "Emergenetics Workshops (v17.2)" }
+  ]
 }
 {% endschema %}
